@@ -1,0 +1,17 @@
+# Requirements for security_check.py
+
+# For asynchronous HTTP requests to PyPI
+# Enables concurrent checking of multiple packages
+aiohttp>=3.8.0
+
+# For parsing and comparing version strings
+# Used to determine update types (MAJOR, MINOR, PATCH)
+packaging>=21.0
+
+# Note: The script also uses built-in Python modules:
+# - asyncio: For asynchronous programming (standard library)
+# - datetime: For timestamp handling (standard library)
+# - argparse: For command-line argument parsing (standard library)
+# - sys: For system-level operations (standard library)
+# - time: For timing operations (standard library)
+

@@ -1,0 +1,27 @@
+apiVersion: logging.banzaicloud.io/v1beta1
+kind: Flow
+metadata:
+  name: {{ printf "%s-%s" (include "logging-config.fullname" .) .Values.flow.baseName | trunc 63 }}
+  namespace: {{ .Release.Namespace }}
+  labels: 
+    {{- include "logging-config.labels" . | nindent 4 }}
+spec:
+  filters:
+    - tag_normaliser: {}
+  match:
+    - select:
+        labels:
+          {{- range $key, $value := .Values.flow.labels }}
+          {{ $key }}: {{ $value | quote }}
+          {{- end }}
+  localOutputRefs:
+    {{- if .Values.cloudwatch.enabled }}
+    - {{ printf "%s-%s" (include "logging-config.fullname" .) .Values.cloudwatch.output.name | trunc 63 }}
+    {{- end }}
+    {{- if .Values.splunk.enabled }}
+    - {{ printf "%s-%s" (include "logging-config.fullname" .) .Values.splunk.output.name | trunc 63 }}
+    {{- end }}
+    {{- if not (or .Values.cloudwatch.enabled .Values.splunk.enabled) }}
+    - null
+    {{- end }}
+

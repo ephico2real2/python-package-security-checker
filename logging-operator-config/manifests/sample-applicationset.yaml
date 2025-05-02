@@ -1,0 +1,119 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: logging-operator-config
+spec:
+  generators:
+    - list:
+        elements:
+          # SBOX
+          - cluster: use1-datajar-sbox231206
+            region: use1
+            env: sbox
+            project-env: sbox
+            branch: main
+            namespace: datajar-django-sbox
+            clusterVal: sbox231206
+          ##
+          - cluster: euw2-datajar-sbox231206
+            region: euw2
+            env: sbox
+            project-env: sbox
+            branch: main
+            namespace: datajar-django-sbox
+            clusterVal: sbox231206
+          # DEV - commneted out due to missing use1 dev eks cluster in argocd. Will uncomment pending ticket resolution
+          - cluster: use1-datajar-dev240226
+            region: use1
+            env: dev
+            project-env: dev
+            branch: main
+            namespace: datajar-django-dev
+            clusterVal: dev240226
+          ##
+          - cluster: euw2-datajar-dev231206
+            region: euw2
+            env: dev
+            project-env: dev
+            branch: main
+            namespace: datajar-django-dev
+            clusterVal: dev231206
+          # STAGE
+          - cluster: use1-jprosvc-stage240110
+            region: use1
+            env: stage
+            project-env: stage
+            branch: main
+            namespace: datajar-django-stage
+            clusterVal: stage240110
+          ##
+          - cluster: euw2-jprosvc-stage231206
+            region: euw2
+            env: stage
+            project-env: stage
+            branch: main
+            namespace: datajar-django-stage
+            clusterVal: stage231206
+          # PROD
+          - cluster: use1-jprosvc-prod240110
+            region: use1
+            env: prod
+            project-env: prod
+            branch: main
+            namespace: datajar-django-prod
+            clusterVal: prod240110
+          ##
+          - cluster: euw2-jprosvc-prod231206
+            region: euw2
+            env: prod
+            project-env: prod
+            branch: main
+            namespace: datajar-django-prod
+            clusterVal: prod231206
+  template:
+    metadata:
+      annotations:
+        argocd.argoproj.io/manifest-generate-paths: ".;.."
+        notifications.argoproj.io/subscribe.on-health-degraded.slack: team-red-dawg-pr
+        notifications.argoproj.io/subscribe.on-sync-failed.slack: team-red-dawg-pr
+        notifications.argoproj.io/subscribe.on-sync-status-unknown.slack: team-red-dawg-pr
+      name: 'logging-operator-config-{{env}}-{{region}}-{{clusterVal}}'
+      labels:
+        app: logging-operator-config
+        environment: '{{env}}'
+        region: '{{region}}'
+        cluster: '{{cluster}}'
+        namespace: '{{namespace}}'
+    spec:
+      info:
+        - name: jamf/infrastructure/owner
+          value: datajar
+        - name: jamf/infrastructure/owner-mail
+          value: "-"
+        - name: jamf/infrastructure/software
+          value: "-"
+        - name: jamf/infrastructure/repository
+          value: "jamf/datajar-argocd-applications"
+        - name: jamf/infrastructure/environment
+          value: '{{env}}'
+      destination:
+        name: '{{cluster}}'
+        namespace: '{{namespace}}'
+      project: datajar-{{project-env}}
+      source:
+        repoURL: git@github.com:jamf/insights-logging-operator-config.git
+        targetRevision: '{{branch}}'
+        path: "helm-chart"
+        helm:
+          releaseName: logging-operator-config
+          valueFiles:
+            - ../values/values-{{env}}-{{region}}.yaml
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - PrunePropagationPolicy=foreground
+          - PruneLast=true
+          - CreateNamespace=true
+          - ApplyOutOfSyncOnly=true

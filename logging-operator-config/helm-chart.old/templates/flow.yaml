@@ -1,0 +1,17 @@
+apiVersion: logging.banzaicloud.io/v1beta1
+kind: Flow
+metadata:
+  name: {{ .Values.flow.name }}
+  namespace: {{ .Values.namespace }}
+  labels: {{ include "logging-operator-config.labels" . | nindent 4 }}
+spec:
+  filters:
+    - tag_normaliser: {}
+  match:
+    - select:
+        labels:
+          {{- range $key, $value := .Values.flow.labels }}
+          {{ $key }}: {{ $value }}
+          {{- end }}
+  localOutputRefs:
+    - {{ .Values.output.name }}

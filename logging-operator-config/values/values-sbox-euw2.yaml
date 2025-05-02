@@ -1,0 +1,34 @@
+namespace: datajar-django-sbox
+nameOverride: ""
+environmentName: sbox
+region: eu-west-2
+targetClusterName: euw2-datajar-sbox231206
+
+flow:
+  baseName: flow
+  labels:
+    app.kubernetes.io/type: datajar
+
+cloudwatch:
+  enabled: true
+  output:
+    name: cloudwatch-output
+    log_stream_name: "${tag}"
+    auto_create_stream: true
+    buffer:
+      timekey: 30s
+      timekey_wait: 30s
+      timekey_use_utc: true
+
+splunk:
+  enabled: false
+  hecTokenSecretName: splunk-hec-token
+  secretStore: aws-secrets-manager
+  refreshInterval: "30m"
+  output:
+    name: splunk-output
+    hec_host: http-inputs-jamf.splunkcloud.com
+    insecure_ssl: false
+    hec_port: 443
+    index: cloud_sbox_datajar_application
+    format_type: json

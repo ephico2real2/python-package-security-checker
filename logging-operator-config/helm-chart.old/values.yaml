@@ -1,0 +1,18 @@
+namespace: datajar-django-sbox
+target_eks_clustername: euw2-datajar-sbox231206
+
+flow:
+  name: cloudwatch-flow-logs
+  labels:
+    app.kubernetes.io/type: datajar
+
+output:
+  name: cloudwatch-output-sink
+  cloudwatch:
+    region: eu-west-2
+    auto_create_stream: true
+    log_stream_name: "${tag}"
+    buffer:
+      timekey: 30s
+      timekey_wait: 30s
+      timekey_use_utc: true

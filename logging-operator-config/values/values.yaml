@@ -1,0 +1,35 @@
+namespace: project-1
+nameOverride: ""
+environmentName: dev
+region: us-east-1  # General region setting for all services
+targetClusterName: dev-cluster
+
+flow:
+  baseName: flow
+  labels:
+    app.kubernetes.io/type: backend
+
+cloudwatch:
+  enabled: true
+  output:
+    name: cloudwatch-output
+    log_stream_name: "${tag}"
+    auto_create_stream: true
+    buffer:
+      timekey: 30s
+      timekey_wait: 30s
+      timekey_use_utc: true
+
+splunk:
+  enabled: true
+  hecTokenSecretName: splunk-hec-token
+  secretStore: aws-secrets-manager
+  refreshInterval: "30m"
+  output:
+    name: splunk-output
+    hec_host: splunk-single-standalone-headless
+    insecure_ssl: true
+    hec_port: 8088
+    index: main
+    format_type: json
+

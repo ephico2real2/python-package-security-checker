@@ -1,0 +1,20 @@
+{{- if .Values.cloudwatch.enabled }}
+apiVersion: logging.banzaicloud.io/v1beta1
+kind: Output
+metadata:
+  name: {{ printf "%s-%s" (include "logging-config.fullname" .) .Values.cloudwatch.output.name | trunc 63 }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "logging-config.labels" . | nindent 4 }}
+spec:
+  cloudwatch:
+    log_group_name: {{ printf "/aws/eks/%s/%s" .Values.targetClusterName .Values.namespace }}
+    log_stream_name: {{ .Values.cloudwatch.output.log_stream_name }}
+    region: {{ .Values.region }}
+    auto_create_stream: {{ .Values.cloudwatch.output.auto_create_stream }}
+    buffer:
+      timekey: {{ .Values.cloudwatch.output.buffer.timekey }}
+      timekey_wait: {{ .Values.cloudwatch.output.buffer.timekey_wait }}
+      timekey_use_utc: {{ .Values.cloudwatch.output.buffer.timekey_use_utc }}
+{{- end }}
+

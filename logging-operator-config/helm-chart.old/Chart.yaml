@@ -1,0 +1,6 @@
+apiVersion: v2
+name: logging-operator-config
+description: A Helm chart for Kubernetes to configure the Logging Operator for CloudWatch
+type: application
+version: 0.1.0
+appVersion: "1.0"

@@ -1,0 +1,23 @@
+{{- if .Values.splunk.enabled }}
+apiVersion: logging.banzaicloud.io/v1beta1
+kind: Output
+metadata:
+  name: {{ printf "%s-%s" (include "logging-config.fullname" .) .Values.splunk.output.name | trunc 63 }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "logging-config.labels" . | nindent 4 }}
+spec:
+  splunkHec:
+    hec_host: {{ .Values.splunk.output.hec_host }}
+    insecure_ssl: {{ .Values.splunk.output.insecure_ssl }}
+    hec_port: {{ .Values.splunk.output.hec_port }}
+    hec_token:
+      valueFrom:
+        secretKeyRef:
+          name:  {{ printf "%s-%s" (include "logging-config.fullname" .) .Values.splunk.hecTokenSecretName | trunc 63 }}
+          key: SplunkHecToken
+    index: {{ .Values.splunk.output.index }}
+    format:
+      type: {{ .Values.splunk.output.format_type }}
+{{- end }}
+
